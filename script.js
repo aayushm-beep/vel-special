@@ -6,8 +6,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const transition = document.getElementById('scene-transition');
     let currentScene = 0;
 
+    // Check if Valentine's Day has arrived (Feb 14, 2026 or later)
+    function isValentineUnlocked() {
+        const now = new Date();
+        const unlock = new Date(2026, 1, 14, 0, 0, 0); // Feb 14, 2026
+        return now >= unlock;
+    }
+
     function goToScene(index) {
         if (index < 0 || index >= scenes.length || index === currentScene) return;
+
+        // Restrict scenes 4-8 until Valentine's Day
+        if (index > 3 && !isValentineUnlocked()) {
+            alert('Patience my darling, Sabr ka fal Mitha hota hai😁😘');
+            return;
+        }
 
         // Transition effect
         transition.classList.add('active');
@@ -21,8 +34,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Trigger animations for the new scene
             if (currentScene === 1) createParticleBurst();
             if (currentScene === 2) startCountdown();
-            if (currentScene === 3) animateTimeline();
-            if (currentScene === 4) startTypewriter();
+            if (currentScene === 3) loadMemories();
+            if (currentScene === 4) animateTimeline();
+            if (currentScene === 5) startTypewriter();
 
             transition.classList.remove('active');
         }, 300);
@@ -36,7 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const envelope = document.getElementById('envelope');
     envelope.addEventListener('click', () => {
         envelope.classList.add('opened');
-        // Play a chime sound
         playChime();
         setTimeout(() => goToScene(1), 1200);
     });
@@ -85,64 +98,320 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             burst.appendChild(particle);
         }
-        // Confetti burst too
         launchConfetti(80);
     }
 
-    // Button navigations
+    // Button navigations (updated scene indices: 0=entrance, 1=name, 2=countdown, 3=memories, 4=story, 5=poem, 6=garden, 7=promise, 8=reaction)
     document.getElementById('btn-to-countdown').addEventListener('click', () => goToScene(2));
-    document.getElementById('btn-to-journey').addEventListener('click', () => goToScene(3));
-    document.getElementById('btn-to-poem').addEventListener('click', () => goToScene(4));
-    document.getElementById('btn-to-gallery').addEventListener('click', () => goToScene(5));
-    document.getElementById('btn-to-promise').addEventListener('click', () => goToScene(6));
-    document.getElementById('btn-to-reaction').addEventListener('click', () => goToScene(7));
+    document.getElementById('btn-to-memories').addEventListener('click', () => goToScene(3));
+    document.getElementById('btn-to-journey').addEventListener('click', () => goToScene(4));
+    document.getElementById('btn-to-poem').addEventListener('click', () => goToScene(5));
+    document.getElementById('btn-to-gallery').addEventListener('click', () => goToScene(6));
+    document.getElementById('btn-to-promise').addEventListener('click', () => goToScene(7));
+    document.getElementById('btn-to-reaction').addEventListener('click', () => goToScene(8));
 
-    // ===== SCENE 3: COUNTDOWN =====
+    // ===== SCENE 3: COUNTDOWN (with auto-advance) =====
     let countdownStarted = false;
+    let countdownInterval = null;
+    let countdownAutoAdvanced = false;
+
     function startCountdown() {
         if (countdownStarted) return;
         countdownStarted = true;
         updateCountdown();
-        setInterval(updateCountdown, 1000);
+        countdownInterval = setInterval(updateCountdown, 1000);
     }
 
     function updateCountdown() {
         const now = new Date();
-        const valentine = new Date(now.getFullYear(), 1, 14); // Feb 14
-        if (now > valentine) valentine.setFullYear(valentine.getFullYear() + 1);
-
-        const diff = valentine - now;
         const msgEl = document.getElementById('countdown-msg');
 
-        if (diff <= 0) {
+        // Check if today IS Valentine's Day (Feb 14)
+        const isValentineDay = (now.getMonth() === 1 && now.getDate() === 14);
+
+        // Target: Feb 14 midnight of current year
+        const valentine = new Date(now.getFullYear(), 1, 14, 0, 0, 0);
+
+        // If Valentine's Day has already passed this year (after Feb 14), target next year
+        // But if today IS Feb 14, treat it as celebration time
+        if (now > valentine && !isValentineDay) {
+            valentine.setFullYear(valentine.getFullYear() + 1);
+        }
+
+        const diff = valentine - now;
+
+        // It's Valentine's Day! Auto-advance to next page
+        if (isValentineDay || diff <= 0) {
             document.getElementById('cd-days').textContent = '00';
             document.getElementById('cd-hours').textContent = '00';
             document.getElementById('cd-mins').textContent = '00';
             document.getElementById('cd-secs').textContent = '00';
             msgEl.textContent = "It's Valentine's Day! I love you, Neharika!";
+
+            // Auto-advance to memories section after a brief celebration
+            if (!countdownAutoAdvanced) {
+                countdownAutoAdvanced = true;
+                launchConfetti(100);
+                setTimeout(() => {
+                    goToScene(3); // Automatically open the next page (Memories)
+                }, 3000);
+            }
             return;
         }
 
         const days = Math.floor(diff / (1000 * 60 * 60 * 24));
         const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const secs = Math.floor((diff % (1000 * 60)) / 1000);
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-        document.getElementById('cd-days').textContent = String(days).padStart(2, '0');
-        document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
-        document.getElementById('cd-mins').textContent = String(mins).padStart(2, '0');
-        document.getElementById('cd-secs').textContent = String(secs).padStart(2, '0');
+        // Update countdown display
+        document.getElementById('cd-days').textContent = days.toString().padStart(2, '0');
+        document.getElementById('cd-hours').textContent = hours.toString().padStart(2, '0');
+        document.getElementById('cd-mins').textContent = mins.toString().padStart(2, '0');
+        document.getElementById('cd-secs').textContent = seconds.toString().padStart(2, '0');
 
-        if (days === 0) {
-            msgEl.textContent = "It's almost here! Just hours away...";
-        } else if (days <= 3) {
-            msgEl.textContent = "So close! My heart is racing...";
-        } else {
-            msgEl.textContent = "Counting every heartbeat until then...";
-        }
+        // Update message
+        msgEl.textContent = 'Every second closer to celebrating our love';
     }
 
-    // ===== SCENE 4: TIMELINE ANIMATION =====
+    // ===== SCENE 4: MEMORIES GALLERY =====
+    let memoriesLoaded = false;
+
+    // Memory tabs
+    const memoryTabs = document.querySelectorAll('.memory-tab');
+    const memoryContents = document.querySelectorAll('.memory-content');
+
+    memoryTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            memoryTabs.forEach(t => t.classList.remove('active'));
+            memoryContents.forEach(c => c.classList.remove('active'));
+            tab.classList.add('active');
+            document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // Define your memories here - add your own files to the memories/ folder and update these arrays
+    const photoFiles = [
+        // Add your photos here, e.g.:
+        // { src: 'memories/photos/photo1.jpg', caption: 'Our first date' },
+        // { src: 'memories/photos/photo2.jpg', caption: 'That sunset we watched' },
+        // { src: 'memories/photos/beach.png', caption: 'Beach day together' },
+    ];
+
+    const videoFiles = [
+        // Add your videos here, e.g.:
+        // { src: 'memories/videos/video1.mp4', title: 'Our funny moment' },
+        // { src: 'memories/videos/dance.mp4', title: 'Dancing together' },
+    ];
+
+    const audioFiles = [
+        // Add your songs/audio here, e.g.:
+        // { src: 'memories/audios/our-song.mp3', title: 'Our Song' },
+        // { src: 'memories/audios/voice-message.m4a', title: 'Sweet voice note' },
+    ];
+
+    function loadMemories() {
+        if (memoriesLoaded) return;
+        memoriesLoaded = true;
+
+        loadPhotoGallery();
+        loadVideoGallery();
+        loadAudioGallery();
+    }
+
+    // Photo Gallery with Lightbox
+    let currentLightboxIndex = 0;
+
+    function loadPhotoGallery() {
+        const gallery = document.getElementById('photo-gallery');
+        if (photoFiles.length === 0) return; // Keep placeholder if no photos
+
+        gallery.innerHTML = '';
+        photoFiles.forEach((photo, index) => {
+            const item = document.createElement('div');
+            item.classList.add('photo-item');
+            item.innerHTML = `
+                <img src="${photo.src}" alt="${photo.caption || 'Memory'}" loading="lazy">
+                <div class="photo-overlay">
+                    <p>${photo.caption || ''}</p>
+                </div>
+            `;
+            item.addEventListener('click', () => openLightbox(index));
+            gallery.appendChild(item);
+        });
+    }
+
+    function openLightbox(index) {
+        if (photoFiles.length === 0) return;
+        currentLightboxIndex = index;
+        const lightbox = document.getElementById('lightbox');
+        const img = document.getElementById('lightbox-img');
+        const caption = document.getElementById('lightbox-caption');
+        const counter = document.getElementById('lightbox-counter');
+
+        img.src = photoFiles[index].src;
+        caption.textContent = photoFiles[index].caption || '';
+        counter.textContent = `${index + 1} / ${photoFiles.length}`;
+        lightbox.style.display = 'flex';
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', () => {
+        document.getElementById('lightbox').style.display = 'none';
+    });
+
+    document.getElementById('lightbox-prev').addEventListener('click', () => {
+        currentLightboxIndex = (currentLightboxIndex - 1 + photoFiles.length) % photoFiles.length;
+        openLightbox(currentLightboxIndex);
+    });
+
+    document.getElementById('lightbox-next').addEventListener('click', () => {
+        currentLightboxIndex = (currentLightboxIndex + 1) % photoFiles.length;
+        openLightbox(currentLightboxIndex);
+    });
+
+    // Close lightbox on background click
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('lightbox') || e.target.closest('.lightbox-content') === null && !e.target.closest('.lightbox-nav') && !e.target.closest('.lightbox-close')) {
+            document.getElementById('lightbox').style.display = 'none';
+        }
+    });
+
+    // Lightbox keyboard navigation
+    document.addEventListener('keydown', (e) => {
+        const lightbox = document.getElementById('lightbox');
+        if (lightbox.style.display !== 'flex') return;
+
+        if (e.key === 'Escape') {
+            lightbox.style.display = 'none';
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            currentLightboxIndex = (currentLightboxIndex - 1 + photoFiles.length) % photoFiles.length;
+            openLightbox(currentLightboxIndex);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            currentLightboxIndex = (currentLightboxIndex + 1) % photoFiles.length;
+            openLightbox(currentLightboxIndex);
+        }
+    });
+
+    // Video Gallery
+    function loadVideoGallery() {
+        const gallery = document.getElementById('video-gallery');
+        if (videoFiles.length === 0) return;
+
+        gallery.innerHTML = '';
+        videoFiles.forEach(video => {
+            const item = document.createElement('div');
+            item.classList.add('video-item');
+            item.innerHTML = `
+                <video controls preload="metadata">
+                    <source src="${video.src}" type="video/mp4">
+                    Your browser does not support video playback.
+                </video>
+                <div class="video-title">${video.title || 'Our Memory'}</div>
+            `;
+            item.addEventListener('click', () => {
+                video.setAttribute('type', 'video/mp4');
+                openLightbox(index);
+            });
+            gallery.appendChild(item);
+        });
+    }
+
+    // Audio Gallery
+    function loadAudioGallery() {
+        const gallery = document.getElementById('audio-gallery');
+        if (audioFiles.length === 0) return;
+
+        gallery.innerHTML = '';
+        audioFiles.forEach(audio => {
+            const item = document.createElement('div');
+            item.classList.add('audio-item');
+            item.innerHTML = `
+                <div class="audio-icon">
+                    <svg viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                </div>
+                <div class="audio-info">
+                    <div class="audio-name">${audio.title || 'Our Song'}</div>
+                    <audio controls preload="metadata">
+                        <source src="${audio.src}" type="audio/${audio.src.split('.').pop() === 'm4a' ? 'mp4' : audio.src.split('.').pop()}">
+                    </audio>
+                </div>
+            `;
+            gallery.appendChild(item);
+        });
+    }
+
+    // Add functionality for full view of photos, videos, and audio
+    function enableFullView() {
+        const photoGallery = document.getElementById('photo-gallery');
+        const videoGallery = document.getElementById('video-gallery');
+        const audioGallery = document.getElementById('audio-gallery');
+
+        // Full view for photos
+        photoGallery.addEventListener('click', (event) => {
+            if (event.target.tagName === 'IMG') {
+                const fullView = document.createElement('div');
+                fullView.classList.add('full-view');
+                const img = document.createElement('img');
+                img.src = event.target.src;
+                img.alt = event.target.alt;
+                fullView.appendChild(img);
+
+                // Close button
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.classList.add('close-button');
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(fullView);
+                });
+                fullView.appendChild(closeButton);
+
+                document.body.appendChild(fullView);
+            }
+        });
+
+        // Full view for videos
+        videoGallery.addEventListener('click', (event) => {
+            if (event.target.tagName === 'VIDEO') {
+                const fullView = document.createElement('div');
+                fullView.classList.add('full-view');
+                const video = document.createElement('video');
+                video.src = event.target.src;
+                video.controls = true;
+                video.autoplay = true;
+                fullView.appendChild(video);
+
+                // Close button
+                const closeButton = document.createElement('button');
+                closeButton.textContent = 'Close';
+                closeButton.classList.add('close-button');
+                closeButton.addEventListener('click', () => {
+                    document.body.removeChild(fullView);
+                });
+                fullView.appendChild(closeButton);
+
+                document.body.appendChild(fullView);
+            }
+        });
+
+        // Load and display audio files
+        const audioFiles = ['WhatsApp Ptt 2026-02-06 at 19.37.23.ogg'];
+        const audioFolder = './memories/audios/';
+
+        audioFiles.forEach(file => {
+            const audio = document.createElement('audio');
+            audio.src = `${audioFolder}${file}`;
+            audio.controls = true;
+            audio.classList.add('gallery-item');
+            audioGallery.appendChild(audio);
+        });
+    }
+
+    // Call enableFullView on page load
+    enableFullView();
+
+    // ===== SCENE 5: TIMELINE ANIMATION =====
     function animateTimeline() {
         const items = document.querySelectorAll('.timeline-item');
         items.forEach((item, i) => {
@@ -150,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // ===== SCENE 5: TYPEWRITER POEM =====
+    // ===== SCENE 6: TYPEWRITER POEM =====
     let typewriterStarted = false;
     const poemLines = [
         "Dear Neharika,",
@@ -206,7 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(addLine, 500);
     }
 
-    // ===== SCENE 6: LOVE GARDEN =====
+    // ===== SCENE 7: LOVE GARDEN =====
     const gardenCanvas = document.getElementById('garden-canvas');
     const flowerCountEl = document.getElementById('flower-count');
     let flowerCount = 0;
@@ -244,7 +513,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // ===== SCENE 8: REACTIONS + MESSAGE STORAGE =====
+    // ===== SCENE 9: REACTIONS + MESSAGE STORAGE =====
     const reactionBtns = document.querySelectorAll('.reaction-btn');
     const messageBox = document.getElementById('message-box');
     const finalMessage = document.getElementById('final-message');
@@ -431,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        adminBody.innerHTML = messages.map((msg, i) => {
+        adminBody.innerHTML = messages.map((msg) => {
             const date = new Date(msg.timestamp);
             const timeStr = date.toLocaleDateString('en-US', {
                 month: 'short', day: 'numeric', year: 'numeric',
@@ -724,11 +993,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const osc = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
 
-                // Piano-like tone (sine + slight harmonics)
                 osc.type = 'triangle';
                 osc.frequency.value = freq;
 
-                // Piano envelope: quick attack, decay
                 const now = audioCtx.currentTime;
                 g.gain.setValueAtTime(0, now);
                 g.gain.linearRampToValueAtTime(0.18, now + 0.02);
@@ -823,6 +1090,9 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('keydown', (e) => {
         if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
         if (e.ctrlKey || e.shiftKey || e.altKey) return;
+        // Don't navigate scenes if lightbox is open
+        if (document.getElementById('lightbox').style.display === 'flex') return;
+
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
             e.preventDefault();
             goToScene(currentScene + 1);
@@ -832,4 +1102,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // ===== VISUAL INDICATOR FOR LOCKED PAGES =====
+    function updateLockedDots() {
+        if (!isValentineUnlocked()) {
+            dots.forEach((dot, i) => {
+                if (i > 3) {
+                    dot.style.opacity = '0.4';
+                    dot.title = dot.title + ' (Locked)';
+                }
+            });
+        }
+    }
+    updateLockedDots();
 });
