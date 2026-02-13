@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function goToScene(index) {
         if (index < 0 || index >= scenes.length || index === currentScene) return;
 
-        // Restrict scenes 4-8 until Valentine's Day
-        if (index > 3 && !isValentineUnlocked()) {
+        // Restrict scenes 3-8 until Valentine's Day (only Envelope, Name, Countdown always accessible)
+        if (index > 2 && !isValentineUnlocked()) {
             alert('Patience my darling, Sabr ka fal Mitha hota hai😁😘');
             return;
         }
@@ -46,13 +46,73 @@ document.addEventListener('DOMContentLoaded', () => {
         dot.addEventListener('click', () => goToScene(i));
     });
 
-    // ===== SCENE 1: ENVELOPE =====
+    // ===== SCENE 1: ROYAL ENVELOPE =====
     const envelope = document.getElementById('envelope');
     envelope.addEventListener('click', () => {
         envelope.classList.add('opened');
         playChime();
-        setTimeout(() => goToScene(1), 1200);
+        // Burst of golden particles on open
+        for (let i = 0; i < 30; i++) {
+            setTimeout(() => {
+                const spark = document.createElement('div');
+                spark.style.cssText = `
+                    position:fixed; width:${3 + Math.random()*5}px; height:${3 + Math.random()*5}px;
+                    background:${['#ffd700','#ffed4e','#ff2d55','#ff85a2','#8b5cf6'][Math.floor(Math.random()*5)]};
+                    border-radius:50%; pointer-events:none; z-index:10000;
+                    left:50%; top:50%; box-shadow:0 0 8px currentColor;
+                `;
+                document.body.appendChild(spark);
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 100 + Math.random() * 200;
+                spark.animate([
+                    { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle)*dist - 50}%, ${Math.sin(angle)*dist - 50}%) scale(0)`, opacity: 0 }
+                ], { duration: 800 + Math.random() * 600, easing: 'ease-out', fill: 'forwards' });
+                setTimeout(() => spark.remove(), 1500);
+            }, i * 20);
+        }
+        setTimeout(() => goToScene(1), 1500);
     });
+
+    // Rose petals falling on entrance
+    const petalsContainer = document.getElementById('rose-petals');
+    function spawnPetal() {
+        const petal = document.createElement('div');
+        const size = 8 + Math.random() * 14;
+        const hue = 330 + Math.random() * 30;
+        petal.style.cssText = `
+            position:absolute; width:${size}px; height:${size * 1.3}px;
+            background:hsl(${hue}, 80%, ${50 + Math.random()*20}%);
+            border-radius:50% 0 50% 50%; opacity:0.6;
+            left:${Math.random()*100}%; top:-20px;
+            animation: petalFall ${6 + Math.random()*6}s linear forwards;
+            transform: rotate(${Math.random()*360}deg);
+            filter: blur(${Math.random() > 0.5 ? 1 : 0}px);
+        `;
+        petalsContainer.appendChild(petal);
+        setTimeout(() => petal.remove(), 13000);
+    }
+    setInterval(spawnPetal, 600);
+    for (let i = 0; i < 8; i++) setTimeout(spawnPetal, i * 300);
+
+    // Golden dust particles
+    const dustContainer = document.getElementById('golden-dust');
+    function spawnDust() {
+        const dust = document.createElement('div');
+        const size = 2 + Math.random() * 3;
+        dust.style.cssText = `
+            position:absolute; width:${size}px; height:${size}px;
+            background:${Math.random() > 0.5 ? '#ffd700' : '#ffed4e'};
+            border-radius:50%; opacity:0;
+            left:${Math.random()*100}%; top:${Math.random()*100}%;
+            animation: dustFloat ${4 + Math.random()*4}s ease-in-out forwards;
+            box-shadow: 0 0 ${4 + Math.random()*6}px rgba(255,215,0,0.8);
+        `;
+        dustContainer.appendChild(dust);
+        setTimeout(() => dust.remove(), 9000);
+    }
+    setInterval(spawnDust, 300);
+    for (let i = 0; i < 15; i++) setTimeout(spawnDust, i * 150);
 
     function playChime() {
         try {
@@ -190,24 +250,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Define your memories here - add your own files to the memories/ folder and update these arrays
+    // Our memories together
     const photoFiles = [
-        // Add your photos here, e.g.:
-        // { src: 'memories/photos/photo1.jpg', caption: 'Our first date' },
-        // { src: 'memories/photos/photo2.jpg', caption: 'That sunset we watched' },
-        // { src: 'memories/photos/beach.png', caption: 'Beach day together' },
+        { src: 'memories/photos/1.png', caption: 'Our memory' },
+        { src: 'memories/photos/2.png', caption: 'Together' },
+        { src: 'memories/photos/Screenshot 2025-09-24 113118.png', caption: 'Precious moment' },
+        { src: 'memories/photos/Screenshot 2025-09-24 124045.png', caption: 'Us' },
+        { src: 'memories/photos/Screenshot 2025-09-24 124754.png', caption: 'Beautiful day' },
+        { src: 'memories/photos/Screenshot 2025-09-25 174240.png', caption: 'With you' },
+        { src: 'memories/photos/Screenshot 2025-09-25 175036.png', caption: 'My favorite' },
+        { src: 'memories/photos/Screenshot 2025-09-25 175455.png', caption: 'Always' },
+        { src: 'memories/photos/Screenshot 2025-09-27 172740.png', caption: 'Our time' },
+        { src: 'memories/photos/Screenshot 2025-09-29 112952.png', caption: 'Love this' },
+        { src: 'memories/photos/Screenshot 2025-09-29 113440.png', caption: 'Special' },
+        { src: 'memories/photos/Screenshot 2025-09-29 114719.png', caption: 'Unforgettable' },
+        { src: 'memories/photos/Screenshot 2025-09-29 115654.png', caption: 'My heart' },
+        { src: 'memories/photos/Screenshot 2025-09-29 120354.png', caption: 'Forever' },
+        { src: 'memories/photos/Screenshot 2025-09-29 123650.png', caption: 'Cherished' },
+        { src: 'memories/photos/Screenshot 2025-09-29 125607.png', caption: 'You and me' },
     ];
 
     const videoFiles = [
-        // Add your videos here, e.g.:
-        // { src: 'memories/videos/video1.mp4', title: 'Our funny moment' },
-        // { src: 'memories/videos/dance.mp4', title: 'Dancing together' },
+        { src: 'memories/videos/Screen Recording 2025-11-06 123410.mp4', title: 'Our moment' },
+        { src: 'memories/videos/Screen Recording 2025-11-07 105243.mp4', title: 'Together' },
+        { src: 'memories/videos/Screen Recording 2025-12-26 161437.mp4', title: 'Special day' },
     ];
 
     const audioFiles = [
-        // Add your songs/audio here, e.g.:
-        // { src: 'memories/audios/our-song.mp3', title: 'Our Song' },
-        // { src: 'memories/audios/voice-message.m4a', title: 'Sweet voice note' },
+        { src: 'memories/audios/WhatsApp Ptt 2026-02-06 at 19.37.23.ogg', title: 'Our voice note' },
     ];
 
     function loadMemories() {
@@ -301,19 +371,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         gallery.innerHTML = '';
         videoFiles.forEach(video => {
+            const ext = video.src.split('.').pop().toLowerCase();
+            const mimeType = ext === 'mov' ? 'video/quicktime' : ext === 'webm' ? 'video/webm' : 'video/mp4';
             const item = document.createElement('div');
             item.classList.add('video-item');
             item.innerHTML = `
-                <video controls preload="metadata">
-                    <source src="${video.src}" type="video/mp4">
+                <video controls preload="metadata" playsinline>
+                    <source src="${video.src}" type="${mimeType}">
                     Your browser does not support video playback.
                 </video>
                 <div class="video-title">${video.title || 'Our Memory'}</div>
             `;
-            item.addEventListener('click', () => {
-                video.setAttribute('type', 'video/mp4');
-                openLightbox(index);
-            });
             gallery.appendChild(item);
         });
     }
@@ -341,75 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
             gallery.appendChild(item);
         });
     }
-
-    // Add functionality for full view of photos, videos, and audio
-    function enableFullView() {
-        const photoGallery = document.getElementById('photo-gallery');
-        const videoGallery = document.getElementById('video-gallery');
-        const audioGallery = document.getElementById('audio-gallery');
-
-        // Full view for photos
-        photoGallery.addEventListener('click', (event) => {
-            if (event.target.tagName === 'IMG') {
-                const fullView = document.createElement('div');
-                fullView.classList.add('full-view');
-                const img = document.createElement('img');
-                img.src = event.target.src;
-                img.alt = event.target.alt;
-                fullView.appendChild(img);
-
-                // Close button
-                const closeButton = document.createElement('button');
-                closeButton.textContent = 'Close';
-                closeButton.classList.add('close-button');
-                closeButton.addEventListener('click', () => {
-                    document.body.removeChild(fullView);
-                });
-                fullView.appendChild(closeButton);
-
-                document.body.appendChild(fullView);
-            }
-        });
-
-        // Full view for videos
-        videoGallery.addEventListener('click', (event) => {
-            if (event.target.tagName === 'VIDEO') {
-                const fullView = document.createElement('div');
-                fullView.classList.add('full-view');
-                const video = document.createElement('video');
-                video.src = event.target.src;
-                video.controls = true;
-                video.autoplay = true;
-                fullView.appendChild(video);
-
-                // Close button
-                const closeButton = document.createElement('button');
-                closeButton.textContent = 'Close';
-                closeButton.classList.add('close-button');
-                closeButton.addEventListener('click', () => {
-                    document.body.removeChild(fullView);
-                });
-                fullView.appendChild(closeButton);
-
-                document.body.appendChild(fullView);
-            }
-        });
-
-        // Load and display audio files
-        const audioFiles = ['WhatsApp Ptt 2026-02-06 at 19.37.23.ogg'];
-        const audioFolder = './memories/audios/';
-
-        audioFiles.forEach(file => {
-            const audio = document.createElement('audio');
-            audio.src = `${audioFolder}${file}`;
-            audio.controls = true;
-            audio.classList.add('gallery-item');
-            audioGallery.appendChild(audio);
-        });
-    }
-
-    // Call enableFullView on page load
-    enableFullView();
 
     // ===== SCENE 5: TIMELINE ANIMATION =====
     function animateTimeline() {
@@ -1106,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateLockedDots() {
         if (!isValentineUnlocked()) {
             dots.forEach((dot, i) => {
-                if (i > 3) {
+                if (i > 2) {
                     dot.style.opacity = '0.4';
                     dot.title = dot.title + ' (Locked)';
                 }
