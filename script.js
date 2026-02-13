@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check if Valentine's Day has arrived (Feb 14, 2026 or later)
     function isValentineUnlocked() {
         const now = new Date();
-        const unlock = new Date(2026, 1, 13, 0, 0, 0); // Feb 14, 2026
+        const unlock = new Date(2026, 1, 14, 0, 0, 0); // Feb 14, 2026
         return now >= unlock;
     }
 
@@ -1132,4 +1132,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     updateLockedDots();
 });
+
 
