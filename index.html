@@ -24,19 +24,52 @@
     <!-- Confetti container -->
     <div id="confetti-container"></div>
 
-    <!-- SECTION 1: Grand Entrance (Scene 0) -->
+    <!-- SECTION 1: Grand Royal Entrance (Scene 0) -->
     <section class="scene scene-entrance active" id="scene-entrance">
         <div class="stars-bg"></div>
         <div class="shooting-star-bg"></div>
+        <!-- Royal corner ornaments -->
+        <div class="royal-corner royal-tl"></div>
+        <div class="royal-corner royal-tr"></div>
+        <div class="royal-corner royal-bl"></div>
+        <div class="royal-corner royal-br"></div>
+        <!-- Floating rose petals -->
+        <div class="rose-petals" id="rose-petals"></div>
+        <!-- Golden dust particles -->
+        <div class="golden-dust" id="golden-dust"></div>
         <div class="envelope-wrapper">
+            <!-- Royal crown above envelope -->
+            <div class="royal-crown">
+                <svg viewBox="0 0 100 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 50 L20 15 L35 35 L50 5 L65 35 L80 15 L90 50 Z" fill="url(#crownGold)" stroke="#ffd700" stroke-width="2"/>
+                    <circle cx="20" cy="13" r="5" fill="#ff2d55" stroke="#ffd700" stroke-width="1.5"/>
+                    <circle cx="50" cy="3" r="6" fill="#8b5cf6" stroke="#ffd700" stroke-width="1.5"/>
+                    <circle cx="80" cy="13" r="5" fill="#ff2d55" stroke="#ffd700" stroke-width="1.5"/>
+                    <rect x="5" y="48" width="90" height="8" rx="3" fill="url(#crownGold)" stroke="#ffd700" stroke-width="1"/>
+                    <defs>
+                        <linearGradient id="crownGold" x1="0" y1="0" x2="100" y2="60">
+                            <stop offset="0%" stop-color="#ffd700"/>
+                            <stop offset="50%" stop-color="#ffed4e"/>
+                            <stop offset="100%" stop-color="#ffd700"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
             <div class="envelope" id="envelope">
                 <div class="envelope-flap"></div>
                 <div class="envelope-body">
+                    <!-- Royal wax seal pattern inside -->
+                    <div class="royal-emboss"></div>
                     <div class="letter-peek">Click to Open</div>
                 </div>
-                <div class="heart-seal"></div>
+                <div class="heart-seal">
+                    <div class="seal-ring"></div>
+                </div>
+                <!-- Golden glow aura -->
+                <div class="envelope-aura"></div>
             </div>
-            <p class="tap-hint">A letter for someone special...</p>
+            <p class="tap-hint">A Royal letter for someone special...</p>
+            <div class="royal-tagline">Sealed with love, delivered by heart</div>
         </div>
     </section>
 
