@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentScene === 3) loadMemories();
             if (currentScene === 4) animateTimeline();
             if (currentScene === 5) startTypewriter();
+            if (currentScene === 6) animateShayari();
 
             transition.classList.remove('active');
         }, 300);
@@ -161,14 +162,15 @@ document.addEventListener('DOMContentLoaded', () => {
         launchConfetti(80);
     }
 
-    // Button navigations (updated scene indices: 0=entrance, 1=name, 2=countdown, 3=memories, 4=story, 5=poem, 6=garden, 7=promise, 8=reaction)
+    // Button navigations (0=entrance, 1=name, 2=countdown, 3=memories, 4=story, 5=poem, 6=shayari, 7=garden, 8=promise, 9=reaction)
     document.getElementById('btn-to-countdown').addEventListener('click', () => goToScene(2));
     document.getElementById('btn-to-memories').addEventListener('click', () => goToScene(3));
     document.getElementById('btn-to-journey').addEventListener('click', () => goToScene(4));
     document.getElementById('btn-to-poem').addEventListener('click', () => goToScene(5));
-    document.getElementById('btn-to-gallery').addEventListener('click', () => goToScene(6));
-    document.getElementById('btn-to-promise').addEventListener('click', () => goToScene(7));
-    document.getElementById('btn-to-reaction').addEventListener('click', () => goToScene(8));
+    document.getElementById('btn-to-shayari').addEventListener('click', () => goToScene(6));
+    document.getElementById('btn-to-gallery').addEventListener('click', () => goToScene(7));
+    document.getElementById('btn-to-promise').addEventListener('click', () => goToScene(8));
+    document.getElementById('btn-to-reaction').addEventListener('click', () => goToScene(9));
 
     // ===== SCENE 3: COUNTDOWN (with auto-advance) =====
     let countdownStarted = false;
@@ -454,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let lineIndex = 0;
         function addLine() {
             if (lineIndex >= poemLines.length) {
-                const btn = document.getElementById('btn-to-gallery');
+                const btn = document.getElementById('btn-to-shayari');
                 btn.style.display = 'inline-block';
                 btn.style.animation = 'fadeInUp 1s ease forwards';
                 return;
@@ -474,7 +476,23 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(addLine, 500);
     }
 
-    // ===== SCENE 7: LOVE GARDEN =====
+    // ===== SCENE 7: SHAYARI =====
+    let shayariAnimated = false;
+    function animateShayari() {
+        if (shayariAnimated) return;
+        shayariAnimated = true;
+        // Re-trigger sher animations by removing and re-adding them
+        const shers = document.querySelectorAll('.sher');
+        shers.forEach((sher, i) => {
+            sher.style.opacity = '0';
+            sher.style.animation = 'none';
+            setTimeout(() => {
+                sher.style.animation = `sherReveal 0.8s ease ${0.2 + i * 0.35}s forwards`;
+            }, 50);
+        });
+    }
+
+    // ===== SCENE 8: LOVE GARDEN =====
     const gardenCanvas = document.getElementById('garden-canvas');
     const flowerCountEl = document.getElementById('flower-count');
     let flowerCount = 0;
